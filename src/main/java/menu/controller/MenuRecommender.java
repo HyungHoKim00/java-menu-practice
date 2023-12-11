@@ -1,13 +1,13 @@
 package menu.controller;
 
-import static menu.model.DailyCategory.NUMBER_OF_DAYS;
+import static menu.enums.Day.DAYS;
 
 import java.util.ArrayList;
 import java.util.List;
-import menu.enums.Category;
+import menu.enums.Day;
 import menu.model.Coaches;
 import menu.model.DailyCategory;
-import menu.utils.Selector;
+import menu.model.Menus;
 import menu.view.InputView;
 import menu.view.OutputView;
 
@@ -15,7 +15,7 @@ public class MenuRecommender {
     private final InputView inputView;
     private final OutputView outputView;
     private Coaches coaches;
-    private List<String>[] menus;
+    private Menus menus;
 
     public MenuRecommender(InputView inputView, OutputView outputView) {
         this.inputView = inputView;
@@ -25,8 +25,8 @@ public class MenuRecommender {
     public void run() {
         setCoaches();
         DailyCategory dailyCategory = new DailyCategory();
-        setTotalMenu(dailyCategory);
-        outputView.printTotalMenu(buildOutput(dailyCategory));
+        this.menus = new Menus(coaches, dailyCategory);
+        outputView.printTotalMenu(buildOutput(menus));
     }
 
     private void setCoaches() {
@@ -34,40 +34,19 @@ public class MenuRecommender {
         outputView.printCoachNamesRequestMessage();
         List<String> coachNames = validateCoachNames();
         List<List<String>> unedibleMenus = new ArrayList<>();
-        for (int i = 0; i < coachNames.size(); i++) {
-            outputView.printUnedibleMenuRequestMessage(coachNames.get(i));
+        for (String coachName : coachNames) {
+            outputView.printUnedibleMenuRequestMessage(coachName);
             List<String> menus = validateUnedibleMenus();
             unedibleMenus.add(menus);
         }
         coaches = new Coaches(coachNames, unedibleMenus);
     }
 
-    private void setTotalMenu(DailyCategory dailyCategory) {
-        menus = new ArrayList[coaches.getCoachNumber()];
-        for (int i = 0; i < coaches.getCoachNumber(); i++) {
-            menus[i] = new ArrayList<>();
-        }
-        for (int i = 0; i < NUMBER_OF_DAYS; i++) {
-            setMenu(dailyCategory.getCategory(i));
-        }
-    }
-
-    private void setMenu(Category category) {
-        int coachIndex = 0;
-        while (coachIndex != coaches.getCoachNumber()) {
-            String menu = Selector.selectMenu(category);
-            if (edible(coachIndex, menu)) {
-                menus[coachIndex].add(menu);
-                coachIndex++;
-            }
-        }
-    }
-
-    private List<String> buildOutput(DailyCategory dailyCategory) {
+    private List<String> buildOutput(Menus menus) {
         List<String> buildOutput = new ArrayList<>();
         StringBuilder dailyCategories = new StringBuilder("[ 카테고리");
-        for (int i = 0; i < NUMBER_OF_DAYS; i++) {
-            dailyCategories.append(" | ").append(dailyCategory.getCategoryName(i));
+        for (int i = 0; i < DAYS.getNumber(); i++) {
+            dailyCategories.append(" | ").append(menus.getCategoryName(Day.getDay(i)));
         }
         dailyCategories.append(" ]");
         buildOutput.add(String.valueOf(dailyCategories));
@@ -102,21 +81,11 @@ public class MenuRecommender {
         }
     }
 
-    private boolean edible(int coachIndex, String menu) {
-        if (coaches.unedible(coachIndex, menu)) {
-            return false;
-        }
-        if (menus[coachIndex].contains(menu)) {
-            return false;
-        }
-        return true;
-    }
-
     private String coachMenuRecommendation(int coachIndex) {
         StringBuilder coachMenuRecommendation = new StringBuilder("[ ");
         coachMenuRecommendation.append(coaches.getCoachName(coachIndex));
-        for (int i = 0; i < NUMBER_OF_DAYS; i++) {
-            coachMenuRecommendation.append(" | ").append(menus[coachIndex].get(i));
+        for (int i = 0; i < DAYS.getNumber(); i++) {
+            coachMenuRecommendation.append(" | ").append(menus.getMenu(coachIndex, i));
         }
         coachMenuRecommendation.append(" ]");
         return String.valueOf(coachMenuRecommendation);
