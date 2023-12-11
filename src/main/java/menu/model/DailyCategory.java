@@ -6,9 +6,9 @@ import menu.enums.Category;
 import menu.utils.Selector;
 
 public class DailyCategory {
-    private final List<Category> dailyCategory;
     public static final int NUMBER_OF_DAYS = 5;
     private static final int MOST_DUPLICATE = 2;
+    private final List<Category> dailyCategory;
 
     public DailyCategory() {
         dailyCategory = new ArrayList<>();

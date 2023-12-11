@@ -26,7 +26,6 @@ public class MenuRecommender {
         setCoaches();
         DailyCategory dailyCategory = new DailyCategory();
         setTotalMenu(dailyCategory);
-        System.out.println("a");
         outputView.printTotalMenu(buildOutput(dailyCategory));
     }
 
@@ -37,8 +36,8 @@ public class MenuRecommender {
         List<List<String>> unedibleMenus = new ArrayList<>();
         for (int i = 0; i < coachNames.size(); i++) {
             outputView.printUnedibleMenuRequestMessage(coachNames.get(i));
-            List<String> Menus = validateUnedibleMenus();
-            unedibleMenus.add(Menus);
+            List<String> menus = validateUnedibleMenus();
+            unedibleMenus.add(menus);
         }
         coaches = new Coaches(coachNames, unedibleMenus);
     }
